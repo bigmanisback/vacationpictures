@@ -23,7 +23,9 @@
 #define tmpGrad -0.0065
 float R = 287.06;
 float g = 9.81;
-//float startingAltitude
+float startTmp = temp();
+float startPrs = pressure();
+//float startAltitude
 
 void setup() {
   Serial.begin(bitrate);
@@ -54,6 +56,8 @@ float temp() {
 }
 
 float altitude() {
+  float T = temp();
+  float p = pressure();
   
 }
 
