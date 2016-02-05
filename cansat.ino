@@ -16,16 +16,15 @@
 #define pressureOff -0.095
 
 // LM35DZ Temp sensor
-#define tmpSens 0.01  //Sensitivity
-#define tmpOff 0      //Offset
+#define tmpSens 0.01    //Sensitivity
+#define tmpOff 0        //Offset
 
 // Altitude calculation
-#define tmpGrad -0.0065
-float R = 287.06;
-float g = 9.81;
-float startTmp = temp();
-float startPrs = pressure();
-//float startAltitude
+#define tmpGrad -0.0065       //Temperature gradient
+float R = 287.06;             //Specific gas constant
+float g = 9.81;               //Gravitational acceleration
+float startTmp = temp();      //Calculate start temperature
+float startPrs = pressure();  //Calculate start pressure
 
 void setup() {
   Serial.begin(bitrate);
@@ -49,13 +48,13 @@ float pressure() {         //Function to calculate pressure in kPa
   return p;
 }
 
-float temp() {
+float temp() {             //Function to calculate temperature in K
   int v = bitToVolt(5);
   float tmp = (v-tmpOff)/tmpSens;
   return tmp;
 }
 
-float altitude() {
+float altitude() {         //Function to calculate altitude in m
   float T = temp();
   float p = pressure();
   
