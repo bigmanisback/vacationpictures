@@ -1,5 +1,5 @@
 #define bitrate 9600  //Bitrate for the serial interface
-#define vs 5          //Supply voltage
+#define vs 5.0        //Supply voltage
 
 /***** Sensor calibration *****
  * Sensors have not been tested; values are taken from shield test program */
@@ -17,14 +17,15 @@
 
 // LM35DZ Temp sensor
 #define tmpSens 0.01    //Sensitivity
-#define tmpOff 0        //Offset
+#define tmpOff 0.0      //Offset
 
 // Altitude calculation
 #define tmpGrad -0.0065       //Temperature gradient
-float R = 287.06;             //Specific gas constant
-float g = 9.81;               //Gravitational acceleration
-float startTmp = temp();      //Calculate start temperature
-float startPrs = pressure();  //Calculate start pressure
+const float R = 287.06;             //Specific gas constant
+const float g = 9.81;               //Gravitational acceleration
+const float startTmp = temp();      //Calculate start temperature
+const float startPrs = pressure();  //Calculate start pressure
+const float startAlt = 1000.0;        //Temporary value. I don't know what this should be.
 
 void setup() {
   Serial.begin(bitrate);
@@ -57,7 +58,8 @@ float temp() {             //Function to calculate temperature in K
 float altitude() {         //Function to calculate altitude in m
   float T = temp();
   float p = pressure();
-  
+  float alt = (startTmp/tmpGrad)*(pow(p/startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
+  return alt;
 }
 
 void loop() {
