@@ -1,5 +1,6 @@
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
+#define looptime 500  //Loop time in ms
 
 /***** Sensor calibration *****
  * Sensors have not been tested; values are taken from shield test program */
@@ -20,12 +21,14 @@
 #define tmpOff 0.0      //Offset
 
 // Altitude calculation
-#define tmpGrad -0.0065       //Temperature gradient
+#define tmpGrad -0.0065             //Temperature gradient
 const float R = 287.06;             //Specific gas constant
 const float g = 9.81;               //Gravitational acceleration
 const float startTmp = temp();      //Calculate start temperature
 const float startPrs = pressure();  //Calculate start pressure
-const float startAlt = 1000.0;        //Temporary value. I don't know what this should be.
+const float startAlt = 1000.0;      //Temporary value. I don't know what this should be.
+
+unsigned long int counter = 0;      //Used to check how many times the program has run
 
 void setup() {
   Serial.begin(bitrate);
@@ -49,7 +52,7 @@ float pressure() {         //Function to calculate pressure in kPa
   return p;
 }
 
-float temp() {             //Function to calculate temperature in K
+float temp() {             //Function to calculate temperature in deg C
   int v = bitToVolt(5);
   float tmp = (v - tmpOff) / tmpSens;
   return tmp;
@@ -62,7 +65,39 @@ float altitude() {         //Function to calculate altitude in m
   return alt;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void printData() {
+  Serial.print("Counter: ");
+  Serial.print(counter);
+  Serial.print(" | ");
+  Serial.print("Time/ms: ");
+  Serial.print(millis());
+  Serial.print(" | ");
+  Serial.print("Temp/C: ");
+  Serial.print(temp());
+  Serial.print(" | ");
+  /* 
+     Serial.print("NTC/C: ");
+     Serial.print(ntc());
+     Serial.print(" | ");
+  */
+  Serial.print("Pressure/kPa: ");
+  Serial.print(pressure());
+  /* 
+     Serial.print("Acc(X,Y,Z)/ms⁻²: ");
+     Serial.print(accx());
+     Serial.print(",");
+     Serial.print(accy();
+     Serial.print(",");
+     Serial.print(accz());
+  */
+  Serial.println();
+}
 
+void loop() {
+  unsigned long int loop_start = millis(), loop_end;
+  printData();
+  counter++;
+  loop_end = millis();
+  if (looptime>(loop_end-loop_start)){      //Sets the delay to aquire right loop time
+    delay(looptime-(millis()-loop_start));
 }
