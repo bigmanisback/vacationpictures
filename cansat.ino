@@ -33,7 +33,7 @@ void setup() {
 
 float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (from shield test)
   int raw = analogRead(n);
-  float volt = (float)raw*5.000/1023; //should 5.000 be vs?
+  float volt = (float)raw * 5.000 / 1023; //should 5.000 be vs?
   return volt;
 }
 
@@ -45,20 +45,20 @@ float ntc() {
 
 float pressure() {         //Function to calculate pressure in kPa
   int v = bitToVolt(1);
-  float p = (v/vs+pressureOff)/pressureSens;
+  float p = (v / vs + pressureOff) / pressureSens;
   return p;
 }
 
 float temp() {             //Function to calculate temperature in K
   int v = bitToVolt(5);
-  float tmp = (v-tmpOff)/tmpSens;
+  float tmp = (v - tmpOff) / tmpSens;
   return tmp;
 }
 
 float altitude() {         //Function to calculate altitude in m
   float T = temp();
   float p = pressure();
-  float alt = (startTmp/tmpGrad)*(pow(p/startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
+  float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
   return alt;
 }
 
