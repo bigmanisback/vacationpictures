@@ -72,6 +72,9 @@ void printData() {
   Serial.print("Time/ms: ");
   Serial.print(millis());
   Serial.print(" | ");
+  Serial.print("Altitude: ");
+  Serial.print(altitude());
+  Serial.print(" | ");
   Serial.print("Temp/C: ");
   Serial.print(temp());
   Serial.print(" | ");
@@ -100,4 +103,5 @@ void loop() {
   loop_end = millis();
   if (looptime>(loop_end-loop_start)){      //Sets the delay to aquire right loop time
     delay(looptime-(millis()-loop_start));
+  }
 }
