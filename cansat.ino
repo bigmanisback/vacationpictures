@@ -24,8 +24,6 @@
 #define tmpGrad -0.0065             //Temperature gradient
 const float R = 287.06;             //Specific gas constant
 const float g = 9.81;               //Gravitational acceleration
-const float startTmp = temp();      //Calculate start temperature
-const float startPrs = pressure();  //Calculate start pressure
 const float startAlt = 1000.0;      //Temporary value. I don't know what this should be.
 
 unsigned long int counter = 0;      //Used to check how many times the program has run
@@ -59,6 +57,8 @@ float temp() {             //Function to calculate temperature in deg C
 }
 
 float altitude() {         //Function to calculate altitude in m
+  static float startTmp = temp();      //Measure start temperature
+  static float startPrs = pressure();  //Measure start pressure
   float T = temp();
   float p = pressure();
   float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
