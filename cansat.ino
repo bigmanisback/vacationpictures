@@ -47,13 +47,13 @@ float ntc() {
 */
 
 float pressure() {         //Function to calculate pressure in kPa
-  int v = bitToVolt(1);
+  float v = bitToVolt(1);
   float p = (v / vs + pressureOff) / pressureSens;
   return p;
 }
 
 float temp() {             //Function to calculate temperature in deg C
-  int v = bitToVolt(5);
+  float v = bitToVolt(5);
   float tmp = (v - tmpOff) / tmpSens;
   return tmp;
 }
