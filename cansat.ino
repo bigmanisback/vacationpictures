@@ -35,7 +35,7 @@ void setup() {
 
 float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (from shield test)
   int raw = analogRead(n);
-  float volt = (float)raw * 5.000 / 1023; //should 5.000 be vs?
+  float volt = (float)raw * vs / 1023;
   return volt;
 }
 
