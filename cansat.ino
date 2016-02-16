@@ -23,7 +23,7 @@
 #define tmpGrad -0.0065             //Temperature gradient
 const float R = 287.06;             //Specific gas constant
 const float g = 9.81;               //Gravitational acceleration
-const float startAlt = 1000.0;      //Temporary value. I don't know what this should be.
+#define startAlt = 1000.0           //Temporary value. I don't know what this should be.
 
 unsigned long int counter = 0;      //Used to check how many times the program has run
 
