@@ -30,7 +30,7 @@ unsigned long int counter = 0;      //Used to check how many times the program h
 void setup() {
   Serial.begin(bitrate);
   Serial.println("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Altitude / m");
-  //Insert between / °C and ,Alt when available: Temperature (NTC) / °C,Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
+  //Insert between °C, and Alt when available: Temperature (NTC) / °C,Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
 
 float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (from shield test)
