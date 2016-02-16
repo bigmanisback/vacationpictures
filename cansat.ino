@@ -6,8 +6,7 @@
  * Sensors have not been tested; values are taken from shield test program */
 
 // NTC Temp sensor
-/* We do not know the relation between the resistance and the temperature.
- * Can be found in the sensor datasheet, whatever that is.
+/* Sensor datasheet found
 #define ntcRes 
 #define r1 10000
   */
@@ -30,6 +29,8 @@ unsigned long int counter = 0;      //Used to check how many times the program h
 
 void setup() {
   Serial.begin(bitrate);
+  Serial.println("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Altitude / m");
+  //Insert between / °C and ,Alt when available: Temperature (NTC) / °C,Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
 
 float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (from shield test)
@@ -38,7 +39,7 @@ float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (
   return volt;
 }
 
-/* We do not know the relation between the resistance and the temperature. Can be found in the sensor datasheet.
+/*
 float ntc() {
   int v = bitToVolt(0);
 }
@@ -56,7 +57,7 @@ float temp() {             //Function to calculate temperature in deg C
   return tmp;
 }
 
-float altitude() {         //Function to calculate altitude in m
+float altitude() {                     //Function to calculate altitude in m
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
   float T = temp();
@@ -66,33 +67,29 @@ float altitude() {         //Function to calculate altitude in m
 }
 
 void printData() {
-  Serial.print("Counter: ");
   Serial.print(counter);
-  Serial.print(" | ");
-  Serial.print("Time/ms: ");
+  Serial.print(",");
   Serial.print(millis());
-  Serial.print(" | ");
-  Serial.print("Altitude: ");
-  Serial.print(altitude());
-  Serial.print(" | ");
-  Serial.print("Temp/C: ");
-  Serial.print(temp());
-  Serial.print(" | ");
-  /* 
-     Serial.print("NTC/C: ");
-     Serial.print(ntc());
-     Serial.print(" | ");
-  */
-  Serial.print("Pressure/kPa: ");
+  Serial.print(",");
+  Serial.print(analogRead(1));
+  Serial.print(analogRead(5));
+  Serial.print(analogRead(0));
+  Serial.print(analogRead(2));
+  Serial.print(analogRead(3));
+  Serial.print(analogRead(4));
   Serial.print(pressure());
-  /* 
-     Serial.print("Acc(X,Y,Z)/ms⁻²: ");
-     Serial.print(accx());
-     Serial.print(",");
-     Serial.print(accy();
-     Serial.print(",");
-     Serial.print(accz());
-  */
+  Serial.print(",");
+  Serial.print(temp());
+  Serial.print(",");
+  //Serial.print(ntc());
+  //Serial.print(",");
+  //Serial.print(accx());
+  //Serial.print(",");
+  //Serial.print(accy();
+  //Serial.print(",");
+  //Serial.print(accz());
+  //Serial.print(",");
+  Serial.print(altitude());
   Serial.println();
 }
 
@@ -101,7 +98,7 @@ void loop() {
   printData();
   counter++;
   loop_end = millis();
-  if (looptime>(loop_end-loop_start)){      //Sets the delay to aquire right loop time
+  if (looptime>(loop_end-loop_start)){      //Sets the delay to aquire right loop time. Taken from shield test.
     delay(looptime-(millis()-loop_start));
   }
 }
