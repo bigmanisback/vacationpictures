@@ -3,7 +3,7 @@
 #define looptime 500  //Loop time in ms
 
 /***** Sensor calibration *****
- * Sensors have not been tested; values are taken from shield test program */
+ * Temperature offset may be wrong; sensor has not been tested */
 
 // NTC Temp sensor
 /* Sensor datasheet found
@@ -19,7 +19,7 @@
 #define tmpSens 0.01    //Sensitivity
 #define tmpOff 0.0      //Offset
 
-// Altitude calculation
+//***** Altitude calculation *****
 #define tmpGrad -0.0065             //Temperature gradient
 const float R = 287.06;             //Specific gas constant
 const float g = 9.81;               //Gravitational acceleration
