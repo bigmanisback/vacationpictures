@@ -6,10 +6,11 @@
  * Temperature offset may be wrong; sensor has not been tested */
 
 // NTC Temp sensor
-/* Sensor datasheet found
-#define ntcRes 
-#define r1 10000
-  */
+#define r1 10000.0
+const float a = 3.354016E-03;
+const float b = 2.569850E-04;
+const float c = 2.620131E-06;
+const float d = 6.383091E-08;
 
 //Pressure sensor
 #define pressureSens 0.009
@@ -23,13 +24,13 @@
 #define tmpGrad -0.0065             //Temperature gradient
 const float R = 287.06;             //Specific gas constant
 const float g = 9.81;               //Gravitational acceleration
-#define startAlt = 1000.0           //Temporary value. I don't know what this should be.
+#define startAlt 1000.0             //Temporary value. I don't know what this should be.
 
 unsigned long int counter = 0;      //Used to check how many times the program has run
 
 void setup() {
   Serial.begin(bitrate);
-  Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,")            //Heading row
+  Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,");           //Heading row
   Serial.println("Acceleration Y-axis,Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Altitude / m");  //for the output
   //Insert between °C, and Alt when available: Temperature (NTC) / °C,Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
@@ -40,11 +41,10 @@ float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (
   return volt;
 }
 
-/*
 float ntc() {
-  int v = bitToVolt(0);
+  float v = bitToVolt(0);
+  
 }
-*/
 
 float pressure() {         //Function to calculate pressure in kPa
   float v = bitToVolt(1);
