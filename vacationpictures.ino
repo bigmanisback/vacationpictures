@@ -31,7 +31,7 @@ unsigned long int counter = 0;      //Used to check how many times the program h
 void setup() {
   Serial.begin(bitrate);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,"); //Heading row
-  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / °C,Altitude / m");         //for the output
+  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Altitude / m");         //for the output
   //Insert between °C, and Alt when available: Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
 
@@ -41,7 +41,7 @@ float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (
   return volt;
 }
 
-float ntc() {
+float ntc() {               //Function to calculate temperature in K
   float v = bitToVolt(0);
   float r = (vs * r1) / v - r1;
   float t = 1 / (a + b * log(r / r1) + c * pow(log(r / r1), 2) + d * pow(log(r / r1), 3));
