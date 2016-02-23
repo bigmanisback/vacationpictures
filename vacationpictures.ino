@@ -44,6 +44,7 @@ float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (
 float ntc() {
   float v = bitToVolt(0);
   float r = (vs * r1) / v - r1;
+  float t = 1 / (a + b * log(r / r1) + c * pow(log(r / r1), 2) + d * pow(log(r / r1), 3));
 }
 
 float pressure() {         //Function to calculate pressure in kPa
