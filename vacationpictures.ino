@@ -7,10 +7,10 @@
 
 // NTC Temp sensor
 #define r1 10000.0
-const float a = 3.354016E-03;
-const float b = 2.569850E-04;
-const float c = 2.620131E-06;
-const float d = 6.383091E-08;
+const float a = 3.354016E-3;
+const float b = 2.569850E-4;
+const float c = 2.620131E-6;
+const float d = 6.383091E-8;
 
 //Pressure sensor
 #define pressureSens 0.009
@@ -43,8 +43,9 @@ float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (
 
 float ntc() {               //Function to calculate temperature in K
   float v = bitToVolt(0);
-  float r = (vs * r1) / v - r1;
-  float t = 1 / (a + b * log(r / r1) + c * pow(log(r / r1), 2) + d * pow(log(r / r1), 3));
+  float r = vs * r1 / v - r1;
+  float t = 1.0 / (a + b * log(r / r1) + c * pow(log(r / r1), 2.0) + d * pow(log(r / r1), 3.0));
+  return t;
 }
 
 float pressure() {         //Function to calculate pressure in kPa
@@ -62,7 +63,6 @@ float temp() {             //Function to calculate temperature in deg C
 float altitude() {                     //Function to calculate altitude in m
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
-  float T = temp();
   float p = pressure();
   float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
   return alt;
@@ -89,7 +89,7 @@ void printData() {
   Serial.print(",");
   Serial.print(temp());
   Serial.print(",");
-  Serial.print(ntc());
+  Serial.print(ntc()*pow(10.0, 38.0));
   Serial.print(",");
   //Serial.print(accx());
   //Serial.print(",");
@@ -97,8 +97,7 @@ void printData() {
   //Serial.print(",");
   //Serial.print(accz());
   //Serial.print(",");
-  Serial.print(altitude());
-  Serial.println();
+  Serial.println(altitude());
 }
 
 void loop() {
