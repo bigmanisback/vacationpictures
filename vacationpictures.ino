@@ -43,55 +43,64 @@ void setup() {
   //Insert between °C, and Alt when available: Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
 
-float bitToVolt(int n) {    //Function to convert raw ADC-data (0-1023) to volt (from shield test)
+float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
+{
   int raw = analogRead(n);
   float volt = (float)raw * vs / 1023;
   return volt;
 }
 
-float ntc() {               //Function to calculate temperature in K
+float ntc()             //Function to calculate temperature in K
+{
   float v = bitToVolt(0);
   float r = vs * r1 / v - r1;
   float t = 1.0 / (a + b * log(r / r1) + c * pow(log(r / r1), 2.0) + d * pow(log(r / r1), 3.0));
   return t;
 }
 
-float pressure() {         //Function to calculate pressure in kPa
+float pressure()        //Function to calculate pressure in kPa
+{
   float v = bitToVolt(1);
   float p = (v / vs + pressureOff) / pressureSens;
   return p;
 }
 
-float temp() {             //Function to calculate temperature in deg C
+float temp()            //Function to calculate temperature in deg C
+{
   float v = bitToVolt(5);
   float tmp = (v - tmpOff) / tmpSens;
   return tmp;
 }
 
-float accCalc(int axis) { //Function to calculate acceleration in m s⁻²
+float accCalc(int axis) //Function to calculate acceleration in m s⁻²
+{
   float off, sens;
-  switch (axis){
-    case 2:               //x-axis
+  switch (axis)
+  {
+    case 2:             //x-axis
       off = accXOff;
       break;
-    case 3:               //y-axis
+    case 3:             //y-axis
       off = accYOff;
       break;
-    case 4:               //z-axis
+    case 4:             //z-axis
       off = accZOff;
       break;    
   }
-  if (accSensMode) {
+  if (accSensMode)
+  {
     sens = acc6;
   }
-  else {
+  else
+  {
     sens = acc15;
   }
   float acc = (bitToVolt(axis) - off) / sens;
   return acc;
 }
 
-float altitude() {                     //Function to calculate altitude in m
+float altitude()        //Function to calculate altitude in m
+{
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
   float p = pressure();
@@ -99,7 +108,8 @@ float altitude() {                     //Function to calculate altitude in m
   return alt;
 }
 
-void printData() {
+void printData()
+{
   Serial.print(counter);
   Serial.print(",");
   Serial.print(millis());
@@ -131,7 +141,8 @@ void printData() {
   Serial.println(altitude());
 }
 
-void loop() {
+void loop()
+{
   unsigned long int loop_start = millis(), loop_end;
   printData();
   counter++;
