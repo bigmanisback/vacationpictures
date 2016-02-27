@@ -35,7 +35,7 @@ void setup() {
   //Insert between °C, and Alt when available: Acceleration X-axis / m s⁻²,Acceleration Y-axis / m s⁻²,Acceleration Z-axis / m s⁻²,
 }
 
-float bitToVolt(int n) {    //Function to convert raw ADC-data (0-255) to volt (from shield test)
+float bitToVolt(int n) {    //Function to convert raw ADC-data (0-1023) to volt (from shield test)
   int raw = analogRead(n);
   float volt = (float)raw * vs / 1023;
   return volt;
@@ -89,7 +89,7 @@ void printData() {
   Serial.print(",");
   Serial.print(temp());
   Serial.print(",");
-  Serial.print(ntc()*pow(10.0, 38.0));
+  Serial.print(ntc());
   Serial.print(",");
   //Serial.print(accx());
   //Serial.print(",");
