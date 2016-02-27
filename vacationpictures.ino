@@ -21,12 +21,12 @@ const float d = 6.383091E-8;
 #define tmpOff 0.0        //Offset
 
 // Accelerometer
-#define accSensMode true  //false: 1.5 g, true: 6 g
+#define accSensMode true  //Accelerometer sensitivity mode. false: 1.5 g, true: 6 g
 #define acc15 0.8         //Sensitivity at 1.5 g (from datasheet)
 #define acc6 0.206        //Sensitivity at 6 g (from datasheet)
-#define accXOff 1.61      //0 g outputs
-#define accYOff 1.68
-#define accZOff 1.71
+#define accXOff 1.61      //0 g outputs. Slightly wrong, since
+#define accYOff 1.68      //the sensor is very hard to calibrate
+#define accZOff 1.71      //due to the inconsistency of these values.
 
 //***** Altitude calculation *****
 #define tmpGrad -0.0065             //Temperature gradient
@@ -68,6 +68,29 @@ float temp() {             //Function to calculate temperature in deg C
   return tmp;
 }
 
+float accCalc(int axis) { //Function to calculate acceleration in m s⁻²
+  float off, sens;
+  switch (axis){
+    case 2:               //x-axis
+      off = accXOff;
+      break;
+    case 3:               //y-axis
+      off = accYOff;
+      break;
+    case 4:               //z-axis
+      off = accZOff;
+      break;    
+  }
+  if (accSensMode) {
+    sens = acc6;
+  }
+  else {
+    sens = acc15;
+  }
+  float acc = (bitToVolt(axis) - off) / sens;
+  return acc;
+}
+
 float altitude() {                     //Function to calculate altitude in m
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
@@ -99,12 +122,12 @@ void printData() {
   Serial.print(",");
   Serial.print(ntc());
   Serial.print(",");
-  //Serial.print(accx());
-  //Serial.print(",");
-  //Serial.print(accy();
-  //Serial.print(",");
-  //Serial.print(accz());
-  //Serial.print(",");
+  Serial.print(accCalc(2));
+  Serial.print(",");
+  Serial.print(accCalc(3));
+  Serial.print(",");
+  Serial.print(accCalc(4));
+  Serial.print(",");
   Serial.println(altitude());
 }
 
