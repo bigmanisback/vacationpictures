@@ -17,8 +17,16 @@ const float d = 6.383091E-8;
 #define pressureOff -0.095
 
 // LM35DZ Temp sensor
-#define tmpSens 0.01    //Sensitivity
-#define tmpOff 0.0      //Offset
+#define tmpSens 0.01      //Sensitivity
+#define tmpOff 0.0        //Offset
+
+// Accelerometer
+#define accSensMode true  //false: 1.5 g, true: 6 g
+#define acc15 0.8         //Sensitivity at 1.5 g (from datasheet)
+#define acc6 0.206        //Sensitivity at 6 g (from datasheet)
+#define accXOff 1.61      //0 g outputs
+#define accYOff 1.68
+#define accZOff 1.71
 
 //***** Altitude calculation *****
 #define tmpGrad -0.0065             //Temperature gradient
