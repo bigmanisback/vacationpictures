@@ -147,7 +147,8 @@ void loop()
   printData();
   counter++;
   loop_end = millis();
-  if (looptime>(loop_end-loop_start)){      //Sets the delay to aquire right loop time. Taken from shield test.
+  if (looptime>(loop_end-loop_start)) //Sets the delay to aquire right loop time. Taken from shield test.
+  {
     delay(looptime-(millis()-loop_start));
   }
 }
