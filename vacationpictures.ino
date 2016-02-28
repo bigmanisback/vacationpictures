@@ -36,7 +36,8 @@ const float g = 9.81;               //Gravitational acceleration
 
 unsigned long int counter = 0;      //Used to check how many times the program has run
 
-void setup() {
+void setup()
+{
   Serial.begin(bitrate);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
