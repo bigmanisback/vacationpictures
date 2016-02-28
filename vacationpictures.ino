@@ -85,7 +85,7 @@ float accCalc(int axis) //Function to calculate acceleration in g
       break;
     case 4:             //z-axis
       off = accZOff;
-      break;    
+      break;
   }
   if (accSensMode)
   {
