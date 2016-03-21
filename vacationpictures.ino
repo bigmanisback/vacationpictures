@@ -29,16 +29,20 @@ const float d = 6.383091E-8;
 #define accZOff 1.71      //due to the inconsistency of these values.
 
 //***** Altitude calculation *****
-#define tmpGrad -0.0065             //Temperature gradient
-const float R = 287.06;             //Specific gas constant
-const float g = 9.81;               //Gravitational acceleration
-#define startAlt 1000.0             //Temporary value. I don't know what this should be.
+#define tmpGrad -0.0065   //Temperature gradient
+const float R = 287.06;   //Specific gas constant
+const float g = 9.81;     //Gravitational acceleration
+#define startAlt 1000.0   //Temporary value. I don't know what this should be.
 
-unsigned long int counter = 0;      //Used to check how many times the program has run
+#define ledPin 13         //Pin of LED
+
+unsigned long int counter = 0;  //Used to check how many times the program has run
+float alt = startAlt;      //
 
 void setup()
 {
   Serial.begin(bitrate);
+  pinMode(13, OUTPUT);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -138,13 +142,23 @@ void printData()
   Serial.print(",");
   Serial.print(accCalc(4));
   Serial.print(",");
-  Serial.println(altitude());
+  alt = altitude();
+  Serial.println(alt);
+}
+
+void setLed()
+{
+  if (alt - startAlt < 100)
+    digitalWrite(13, HIGH);
+  else
+    digitalWrite(13, LOW);
 }
 
 void loop()
 {
   unsigned long int loop_start = millis(), loop_end;
   printData();
+  setLed();
   counter++;
   loop_end = millis();
   if (looptime>(loop_end-loop_start)) //Sets the delay to aquire right loop time. Taken from shield test.
