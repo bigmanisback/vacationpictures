@@ -36,7 +36,7 @@ const float g = 9.81;     //Gravitational acceleration
 
 #define ledPin 13         //Pin of LED
 
-unsigned long int counter = 0;  //Used to check how many times the program has run
+unsigned long counter = 0;  //Used to check how many times the program has run
 float alt = startAlt;      //
 
 void setup()
@@ -156,7 +156,7 @@ void setLed()
 
 void loop()
 {
-  unsigned long int loop_start = millis(), loop_end;
+  unsigned long loop_start = millis(), loop_end;
   printData();
   setLed();
   counter++;
