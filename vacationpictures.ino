@@ -149,9 +149,9 @@ void printData()
 void setLed()
 {
   if (alt - startAlt < 100)
-    digitalWrite(13, HIGH);
+    digitalWrite(ledPin, HIGH);
   else
-    digitalWrite(13, LOW);
+    digitalWrite(ledPin, LOW);
 }
 
 void loop()
