@@ -1,6 +1,5 @@
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
-#define looptime 500  //Loop time in ms
 
 /***** Sensor calibration *****
  * Temperature offset may be wrong; sensor has not been tested */
@@ -32,7 +31,7 @@ const float d = 6.383091E-8;
 #define tmpGrad -0.0065   //Temperature gradient
 const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
-#define startAlt 1000.0   //Temporary value. I don't know what this should be.
+#define startAlt 0.0   //Temporary value. I don't know what this should be.
 
 #define ledPin 13         //Pin of LED
 
@@ -62,10 +61,10 @@ float ntc()             //Function to calculate temperature in K
   return t;
 }
 
-float pressure()        //Function to calculate pressure in kPa
+float pressure()        //Function to calculate pressure in Pa
 {
   float v = bitToVolt(1);
-  float p = (v / vs + pressureOff) / pressureSens;
+  float p = ((v / vs + pressureOff) / pressureSens) * 1000.0;
   return p;
 }
 
@@ -108,7 +107,7 @@ float altitude()        //Function to calculate altitude in m
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
   float p = pressure();
-  float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0) + startAlt;
+  float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0);
   return alt;
 }
 
@@ -156,13 +155,7 @@ void setLed()
 
 void loop()
 {
-  unsigned long loop_start = millis(), loop_end;
   printData();
   setLed();
   counter++;
-  loop_end = millis();
-  if (looptime>(loop_end-loop_start)) //Sets the delay to aquire right loop time. Taken from shield test.
-  {
-    delay(looptime-(millis()-loop_start));
-  }
 }
