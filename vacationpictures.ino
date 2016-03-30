@@ -31,12 +31,15 @@ const float d = 6.383091E-8;
 #define tmpGrad -0.0065   //Temperature gradient
 const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
-#define startAlt 0.0   //Temporary value. I don't know what this should be.
 
 #define ledPin 13         //Pin of LED
+#define flashDelay 500    //Flash delay in ms
+int loopStart = 0;        //Used to determine whether LED state
+int loopEnd = 0;          //should change when altitude < 100
+bool flash = false;       //to make the LED flash.
 
 unsigned long counter = 0;  //Used to check how many times the program has run
-float alt = startAlt;      //
+float alt = 0.0;
 
 void setup()
 {
@@ -147,15 +150,37 @@ void printData()
 
 void setLed()
 {
-  if (alt - startAlt < 100)
-    digitalWrite(ledPin, HIGH);
+  if (alt < 100)
+  {
+    if (flash)
+    {
+      pinMode(ledPin, INPUT);
+      if (digitalRead(ledPin) == LOW)
+      {
+        pinMode(ledPin, OUTPUT);
+        digitalWrite(ledPin, HIGH);
+      }
+      else
+      {
+        pinMode(ledPin, OUTPUT);
+        digitalWrite(ledPin, LOW);
+      }
+      flash = false;
+    }
+  }
   else
     digitalWrite(ledPin, LOW);
 }
 
 void loop()
 {
+  if (loopEnd - loopStart >= flashDelay)
+  {
+    flash = true;
+    loopStart = millis();
+  }
   printData();
   setLed();
   counter++;
+  loopEnd = millis();
 }
