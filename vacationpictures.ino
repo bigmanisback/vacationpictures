@@ -33,10 +33,10 @@ const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
 
 #define ledPin 13         //Pin of LED
-#define flashDelay 500    //Flash delay in ms
+#define blinkDelay 500    //blink delay in ms
 int loopStart = 0;        //Used to determine whether LED state
 int loopEnd = 0;          //should change when altitude < 100
-bool flash = false;       //to make the LED flash.
+bool blink = false;       //to make the LED blink.
 
 unsigned long counter = 0;  //Used to check how many times the program has run
 float alt = 0.0;
@@ -152,7 +152,7 @@ void setLed()
 {
   if (alt < 100)
   {
-    if (flash)
+    if (blink)
     {
       pinMode(ledPin, INPUT);
       if (digitalRead(ledPin) == LOW)
@@ -165,7 +165,7 @@ void setLed()
         pinMode(ledPin, OUTPUT);
         digitalWrite(ledPin, LOW);
       }
-      flash = false;
+      blink = false;
     }
   }
   else
@@ -174,9 +174,9 @@ void setLed()
 
 void loop()
 {
-  if (loopEnd - loopStart >= flashDelay)
+  if (loopEnd - loopStart >= blinkDelay)
   {
-    flash = true;
+    blink = true;
     loopStart = millis();
   }
   printData();
