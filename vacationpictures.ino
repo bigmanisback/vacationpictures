@@ -32,11 +32,15 @@ const float d = 6.383091E-8;
 const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
 
-#define ledPin 13         //Pin of LED
-#define blinkDelay 500    //blink delay in ms
+#define ledPin 9          //Pin of LED
+#define ledPin2 10        //Pin of LED 2
+#define blinkDelay 250    //blink delay in ms
 int loopStart = 0;        //Used to determine whether LED state
 int loopEnd = 0;          //should change when altitude < 100
 bool blink = false;       //to make the LED blink.
+bool state = false;       //If true, LED is on.
+
+#define speakerPin 8      //Pin of speaker
 
 unsigned long counter = 0;  //Used to check how many times the program has run
 float alt = 0.0;
@@ -44,7 +48,8 @@ float alt = 0.0;
 void setup()
 {
   Serial.begin(bitrate);
-  pinMode(13, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(ledPin2, OUTPUT);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -154,16 +159,18 @@ void setLed()
   {
     if (blink)
     {
-      pinMode(ledPin, INPUT);
-      if (digitalRead(ledPin) == LOW)
+      if (!state)
       {
-        pinMode(ledPin, OUTPUT);
         digitalWrite(ledPin, HIGH);
+        digitalWrite(ledPin2, HIGH);
+        state = true;
       }
       else
       {
-        pinMode(ledPin, OUTPUT);
+        
         digitalWrite(ledPin, LOW);
+        digitalWrite(ledPin2, LOW);
+        state = false;
       }
       blink = false;
     }
