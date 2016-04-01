@@ -153,7 +153,7 @@ void printData()
   Serial.println(alt);
 }
 
-void setLed()
+void setLed() //For now, the speaker will be started by this function. The final version will have a dedicated speaker function.
 {
   if (alt < 100)
   {
@@ -163,6 +163,7 @@ void setLed()
       {
         digitalWrite(ledPin, HIGH);
         digitalWrite(ledPin2, HIGH);
+        tone(speakerPin, 523, 250);
         state = true;
       }
       else
@@ -176,7 +177,10 @@ void setLed()
     }
   }
   else
+  {
     digitalWrite(ledPin, LOW);
+    noTone(speakerPin);
+  }
 }
 
 void loop()
