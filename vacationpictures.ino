@@ -34,11 +34,11 @@ const float g = 9.81;     //Gravitational acceleration
 
 #define ledPin 9          //Pin of LED
 #define ledPin2 10        //Pin of LED 2
-#define blinkDelay 250    //blink delay in ms
-int loopStart = 0;        //Used to determine whether LED state
-int loopEnd = 0;          //should change when altitude < 100
-bool blink = false;       //to make the LED blink.
-bool state = false;       //If true, LED is on.
+#define toggleDelay 250   //toggle delay in ms
+int loopStart = 0;        //Used to determine whether LED and speaker
+int loopEnd = 0;          //states should change when altitude < 100 to
+bool toggle = false;      //make the LED blink and the speaker play a tone.
+bool state = false;       //If true, LED and speaker are on.
 
 #define speakerPin 8      //Pin of speaker
 
@@ -50,6 +50,7 @@ void setup()
   Serial.begin(bitrate);
   pinMode(ledPin, OUTPUT);
   pinMode(ledPin2, OUTPUT);
+  pinMode(speakerPin, OUTPUT);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -153,27 +154,26 @@ void printData()
   Serial.println(alt);
 }
 
-void setLed() //For now, the speaker will be started by this function. The final version will have a dedicated speaker function.
+void alert() //
 {
   if (alt < 100)
   {
-    if (blink)
+    if (toggle)
     {
       if (!state)
       {
         digitalWrite(ledPin, HIGH);
         digitalWrite(ledPin2, HIGH);
-        tone(speakerPin, 523, 250);
+        tone(speakerPin, 523, toggleDelay);
         state = true;
       }
       else
       {
-        
         digitalWrite(ledPin, LOW);
         digitalWrite(ledPin2, LOW);
         state = false;
       }
-      blink = false;
+      toggle = false;
     }
   }
   else
@@ -185,13 +185,13 @@ void setLed() //For now, the speaker will be started by this function. The final
 
 void loop()
 {
-  if (loopEnd - loopStart >= blinkDelay)
+  if (loopEnd - loopStart >= toggleDelay)
   {
-    blink = true;
+    toggle = true;
     loopStart = millis();
   }
   printData();
-  setLed();
+  alert();
   counter++;
   loopEnd = millis();
 }
