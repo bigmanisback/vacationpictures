@@ -36,9 +36,9 @@ const float g = 9.81;     //Gravitational acceleration
 #define ledPin 9              //Pin of LED
 #define ledPin2 10            //Pin of LED 2
 #define ledDelayOn1 250       //Blink delay of LED 1 in ms
-#define ledDelayOff1 1000     //Blink delay of LED 1 in ms
+#define ledDelayOff1 750      //Blink delay of LED 1 in ms
 #define ledDelayOn2 250       //Blink delay of LED 2 in ms
-#define ledDelayOff2Real 1000 //Blink delay of LED 2 in ms
+#define ledDelayOff2Real 750  //Blink delay of LED 2 in ms
 bool ledToggle1 = false;      //If true, LED 1 will toggle when led1() is called.
 bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called.
 bool led1On = true;           //
