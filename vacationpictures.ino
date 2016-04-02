@@ -1,5 +1,6 @@
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
+#define loopTime 500  //Duration of one loop
 
 /***** Sensor calibration *****
  * Temperature offset may be wrong; sensor has not been tested */
@@ -32,17 +33,20 @@ const float d = 6.383091E-8;
 const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
 
-#define ledPin 9          //Pin of LED
-#define ledPin2 10        //Pin of LED 2
-#define toggleDelay 250   //toggle delay in ms
-int loopStart = 0;        //Used to determine whether LED and speaker
-int loopEnd = 0;          //states should change when altitude < 100 to
-bool toggle = false;      //make the LED blink and the speaker play a tone.
-bool state = false;       //If true, LED and speaker are on.
+#define ledPin 9              //Pin of LED
+#define ledPin2 10            //Pin of LED 2
+#define ledDelayOn1 250       //Blink delay of LED 1 in ms
+#define ledDelayOff1 1000     //Blink delay of LED 1 in ms
+#define ledDelayOn2 250       //Blink delay of LED 2 in ms
+#define ledDelayOff2Real 1000 //Blink delay of LED 2 in ms
+bool ledToggle1 = false;      //If true, LED 1 will toggle when led1() is called.
+bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called.
+bool led1On = true;           //
+bool led2On = false;          //
 
-#define speakerPin 8      //Pin of speaker
+#define speakerPin 6      //Pin of speaker
 
-unsigned long counter = 0;  //Used to check how many times the program has run
+unsigned long counter = 0;//Used to check how many times the program has run
 float alt = 0.0;
 
 void setup()
@@ -51,6 +55,7 @@ void setup()
   pinMode(ledPin, OUTPUT);
   pinMode(ledPin2, OUTPUT);
   pinMode(speakerPin, OUTPUT);
+  //analogWrite(speakerPin, 255);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -154,44 +159,108 @@ void printData()
   Serial.println(alt);
 }
 
-void alert() //
+void led1()
 {
-  if (alt < 100)
+  if (led1On)
   {
-    if (toggle)
-    {
-      if (!state)
-      {
-        digitalWrite(ledPin, HIGH);
-        digitalWrite(ledPin2, HIGH);
-        tone(speakerPin, 523, toggleDelay);
-        state = true;
-      }
-      else
-      {
-        digitalWrite(ledPin, LOW);
-        digitalWrite(ledPin2, LOW);
-        state = false;
-      }
-      toggle = false;
-    }
+    digitalWrite(ledPin, LOW);
+    digitalWrite(speakerPin, LOW);
+    led1On = false;
   }
   else
   {
-    digitalWrite(ledPin, LOW);
-    noTone(speakerPin);
+    digitalWrite(ledPin, HIGH);
+    digitalWrite(speakerPin, HIGH);
+    led1On = true;
   }
+  ledToggle1 = false;
+}
+
+void led2()
+{
+  if (led2On)
+  {
+    digitalWrite(ledPin2, LOW);
+    led2On = false;
+  }
+  else
+  {
+    digitalWrite(ledPin2, HIGH);
+    led2On = true;
+  }
+  ledToggle2 = false;
+}
+
+void speaker()
+{
+  tone(speakerPin, 523, 250);
 }
 
 void loop()
 {
-  if (loopEnd - loopStart >= toggleDelay)
+  static unsigned long loopStart = 0;                                   //Determines whether data should be printed.
+  static unsigned long ledStart1 = 0;                                   //Determines whether LED 1 state should change when altitude < 100.
+  static unsigned long ledStart2 = 0;                                   //Determines whether LED 2 state should change when altitude < 100.
+  static unsigned long loopEnd = 0;                                     //Initialized as an arbitrary high value to make everything run the first time.
+  static unsigned long ledDelayOff2 = (ledDelayOn2 + ledDelayOff2Real) / 2;  //This sets the first off delay so that the LEDs are in opposite phase.
+  //static bool firstRun = true;
+
+  if (led1On)
   {
-    toggle = true;
-    loopStart = millis();
+    if (loopEnd - ledStart1 > ledDelayOn1)
+    {
+      ledToggle1 = true;
+      ledStart1 = millis();
+    }
   }
-  printData();
-  alert();
+  else
+  {
+    if (loopEnd - ledStart1 > ledDelayOff1)
+    {
+      ledToggle1 = true;
+      ledStart1 = millis();
+    }
+  }
+  
+  if (led2On)
+  {
+    if (loopEnd - ledStart2 > ledDelayOn2)
+    {
+      ledToggle2 = true;
+      ledStart2 = millis();
+    }
+  }
+  else
+  {
+    if (loopEnd - ledStart2 > ledDelayOff2)
+    {
+      ledToggle2 = true;
+      ledStart2 = millis();
+      ledDelayOff2 = ledDelayOff2Real;
+    }
+  }
+  if (loopEnd - loopStart > loopTime)
+    printData();
+  
+  if (alt < 100.0)
+  {
+    if (ledToggle1)
+      led1();
+    if (ledToggle2)
+      /*if (firstRun)
+      {
+        delay(ledDelayOn1);
+        firstRun = false;
+      }*/
+      led2();
+    //speaker();
+  }
+  else
+  {
+    digitalWrite(ledPin, LOW);
+    digitalWrite(ledPin2, LOW);
+  }
+  
   counter++;
   loopEnd = millis();
 }
