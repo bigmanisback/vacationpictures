@@ -241,6 +241,7 @@ void loop()
   }
   if (loopEnd - loopStart > loopTime)
     printData();
+    loopStart = millis();
   
   if (alt < 100.0)
   {
