@@ -180,11 +180,13 @@ void led1()
   }
   else
   {
-    if (forceSilence)
+    if (!forceSilence)
     {
       if (useLed1)
       {
         if (alt < alertAltitude)
+          digitalWrite(ledPin, HIGH);
+        else if (forceAlert)
           digitalWrite(ledPin, HIGH);
       }
     }
@@ -208,6 +210,8 @@ void led2()
       {
         if (alt < alertAltitude)
           digitalWrite(ledPin2, HIGH);
+        else if (forceAlert)
+          digitalWrite(ledPin2, HIGH);
       }
     }
     led2On = true;
@@ -229,6 +233,8 @@ void buzzer()
       if (useBuzzer)
       {
         if (alt < alertAltitude)
+          digitalWrite(buzzerPin, HIGH);
+        else if (forceAlert)
           digitalWrite(buzzerPin, HIGH);
       }
     }
@@ -347,27 +353,12 @@ void loop()
   
   manual();
 
-  else
-  {
-    if (alt < alertAltitude)      //do the things if we're lower than 100 m above starting altitude
-    {
-      if (ledToggle1)
-        led1();
-      if (ledToggle2)
-        led2();
-      if (buzzerToggle)
-        buzzer();
-    }
-    else if (forceAlert)  //or if a command has been recieved
-    {
-      if (ledToggle1)
-        led1();
-      if (ledToggle2)
-        led2();
-      if (buzzerToggle)
-        buzzer();
-    }
-  }
+  if (ledToggle1)
+    led1();
+  if (ledToggle2)
+    led2();
+  if (buzzerToggle)
+    buzzer();
   
   counter++;
   loopEnd = millis();
