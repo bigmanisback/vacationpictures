@@ -54,6 +54,7 @@ bool useLed1 = true;
 bool useLed2 = true;
 bool useBuzzer = true;
 bool forceAlert = false;
+bool forceSilence = true;
 
 unsigned long counter = 0;//Used to check how many times the program has run
 float alt = 0.0;
@@ -247,6 +248,12 @@ void manual()
         else
           forceAlert = true;
         break;
+      case 's':
+        if (forceSilence)
+          forceSilence = false;
+        else
+          forceSilence = true;
+        break;
     }
   }
 }
@@ -319,30 +326,39 @@ void loop()
   }
   
   manual();
-  
-  if (alt < 100.0)      //do the things if we're lower than 100 m above starting altitude
-  {
-    if (ledToggle1)
-      led1();
-    if (ledToggle2)
-      led2();
-    if (buzzerToggle)
-      buzzer();
-  }
-  else if (forceAlert)  //or if a command has been recieved
-  {
-    if (ledToggle1)
-      led1();
-    if (ledToggle2)
-      led2();
-    if (buzzerToggle)
-      buzzer();
-  }
-  else                  //turn the things off
+
+  if (forceSilence)       //don't do anything if we've been told to shut up
   {
     digitalWrite(ledPin, LOW);
     digitalWrite(ledPin2, LOW);
     digitalWrite(buzzerPin, LOW);
+  }
+  else
+  {
+    if (alt < 100.0)      //do the things if we're lower than 100 m above starting altitude
+    {
+      if (ledToggle1)
+        led1();
+      if (ledToggle2)
+        led2();
+      if (buzzerToggle)
+        buzzer();
+    }
+    else if (forceAlert)  //or if a command has been recieved
+    {
+      if (ledToggle1)
+        led1();
+      if (ledToggle2)
+        led2();
+      if (buzzerToggle)
+        buzzer();
+    }
+    else                  //turn the things off
+    {
+      digitalWrite(ledPin, LOW);
+      digitalWrite(ledPin2, LOW);
+      digitalWrite(buzzerPin, LOW);
+    }
   }
   
   counter++;
