@@ -170,71 +170,50 @@ void printData()
 
 void led1()
 {
-  if (useLed1)
-  {
-    if (led1On)
-    {
-      digitalWrite(ledPin, LOW);
-      led1On = false;
-    }
-    else
-    {
-      digitalWrite(ledPin, HIGH);
-      led1On = true;
-    }
-    ledToggle1 = false;
-  }
-  else
+  if (led1On)
   {
     digitalWrite(ledPin, LOW);
     led1On = false;
   }
+  else
+  {
+    if (useLed1)
+      digitalWrite(ledPin, HIGH);
+    led1On = true;
+  }
+  ledToggle1 = false;
 }
 
 void led2()
 {
-  if (useLed2)
-  {
-    if (led2On)
-    {
-      digitalWrite(ledPin2, LOW);
-      led2On = false;
-    }
-    else
-    {
-      digitalWrite(ledPin2, HIGH);
-      led2On = true;
-    }
-    ledToggle2 = false;
-  }
-  else
+  if (led2On)
   {
     digitalWrite(ledPin2, LOW);
     led2On = false;
   }
+  else
+  {
+    if (useLed2)
+      digitalWrite(ledPin2, HIGH);
+    led2On = true;
+  }
+  ledToggle2 = false;
 }
 
 void buzzer()
 {
-  if (useBuzzer)
-  {
-    if (buzzerOn)
-    {
-      digitalWrite(buzzerPin, LOW);
-      buzzerOn = false;
-    }
-    else
-    {
-      digitalWrite(buzzerPin, HIGH);
-      buzzerOn = true;
-    }
-    buzzerToggle = false;
-  }
-  else
+  if (buzzerOn)
   {
     digitalWrite(buzzerPin, LOW);
     buzzerOn = false;
   }
+  else
+  {
+    if (useBuzzer)
+      digitalWrite(buzzerPin, HIGH);
+    buzzerOn = true;
+  }
+  buzzerToggle = false;
 }
 
 void manual()
