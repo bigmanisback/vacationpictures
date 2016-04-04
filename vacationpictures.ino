@@ -33,6 +33,8 @@ const float d = 6.383091E-8;
 const float R = 287.06;   //Specific gas constant
 const float g = 9.81;     //Gravitational acceleration
 
+#define alertAltitude 100.0
+
 #define ledPin 9              //Pin of LED
 #define ledPin2 10            //Pin of LED 2
 #define ledDelayOn1 250       //Blink delay of LED 1 in ms
@@ -335,7 +337,7 @@ void loop()
   }
   else
   {
-    if (alt < 100.0)      //do the things if we're lower than 100 m above starting altitude
+    if (alt < alertAltitude)      //do the things if we're lower than 100 m above starting altitude
     {
       if (ledToggle1)
         led1();
