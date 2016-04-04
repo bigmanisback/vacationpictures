@@ -54,7 +54,7 @@ bool useLed1 = true;
 bool useLed2 = true;
 bool useBuzzer = true;
 bool forceAlert = false;
-bool forceSilence = true;
+bool forceSilence = false;
 
 unsigned long counter = 0;//Used to check how many times the program has run
 float alt = 0.0;
