@@ -180,8 +180,14 @@ void led1()
   }
   else
   {
-    if (useLed1)
-      digitalWrite(ledPin, HIGH);
+    if (forceSilence)
+    {
+      if (useLed1)
+      {
+        if (alt < alertAltitude)
+          digitalWrite(ledPin, HIGH);
+      }
+    }
     led1On = true;
   }
   ledToggle1 = false;
@@ -196,8 +202,14 @@ void led2()
   }
   else
   {
-    if (useLed2)
-      digitalWrite(ledPin2, HIGH);
+    if (!forceSilence)
+    {
+      if (useLed2)
+      {
+        if (alt < alertAltitude)
+          digitalWrite(ledPin2, HIGH);
+      }
+    }
     led2On = true;
   }
   ledToggle2 = false;
@@ -212,8 +224,14 @@ void buzzer()
   }
   else
   {
-    if (useBuzzer)
-      digitalWrite(buzzerPin, HIGH);
+    if (!forceSilence)
+    {
+      if (useBuzzer)
+      {
+        if (alt < alertAltitude)
+          digitalWrite(buzzerPin, HIGH);
+      }
+    }
     buzzerOn = true;
   }
   buzzerToggle = false;
@@ -329,12 +347,6 @@ void loop()
   
   manual();
 
-  if (forceSilence)       //don't do anything if we've been told to shut up
-  {
-    digitalWrite(ledPin, LOW);
-    digitalWrite(ledPin2, LOW);
-    digitalWrite(buzzerPin, LOW);
-  }
   else
   {
     if (alt < alertAltitude)      //do the things if we're lower than 100 m above starting altitude
@@ -354,12 +366,6 @@ void loop()
         led2();
       if (buzzerToggle)
         buzzer();
-    }
-    else                  //turn the things off
-    {
-      digitalWrite(ledPin, LOW);
-      digitalWrite(ledPin2, LOW);
-      digitalWrite(buzzerPin, LOW);
     }
   }
   
