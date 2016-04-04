@@ -44,7 +44,16 @@ bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called
 bool led1On = true;           //
 bool led2On = false;          //
 
-#define speakerPin 6      //Pin of speaker
+#define buzzerPin 6      //Pin of buzzer
+#define buzzerDelayOn 250
+#define buzzerDelayOff 750
+bool buzzerToggle = false;
+bool buzzerOn = true;
+
+bool useLed1 = true;
+bool useLed2 = true;
+bool useBuzzer = true;
+bool forceAlert = false;
 
 unsigned long counter = 0;//Used to check how many times the program has run
 float alt = 0.0;
@@ -54,8 +63,8 @@ void setup()
   Serial.begin(bitrate);
   pinMode(ledPin, OUTPUT);
   pinMode(ledPin2, OUTPUT);
-  pinMode(speakerPin, OUTPUT);
-  //analogWrite(speakerPin, 255);
+  pinMode(buzzerPin, OUTPUT);
+  //analogWrite(buzzerPin, 255);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -161,57 +170,124 @@ void printData()
 
 void led1()
 {
-  if (led1On)
+  if (useLed1)
   {
-    digitalWrite(ledPin, LOW);
-    digitalWrite(speakerPin, LOW);
-    led1On = false;
+    if (led1On)
+    {
+      digitalWrite(ledPin, LOW);
+      led1On = false;
+    }
+    else
+    {
+      digitalWrite(ledPin, HIGH);
+      led1On = true;
+    }
+    ledToggle1 = false;
   }
   else
   {
-    digitalWrite(ledPin, HIGH);
-    digitalWrite(speakerPin, HIGH);
-    led1On = true;
+    digitalWrite(ledPin, LOW);
+    led1On = false;
   }
-  ledToggle1 = false;
 }
 
 void led2()
 {
-  if (led2On)
+  if (useLed2)
+  {
+    if (led2On)
+    {
+      digitalWrite(ledPin2, LOW);
+      led2On = false;
+    }
+    else
+    {
+      digitalWrite(ledPin2, HIGH);
+      led2On = true;
+    }
+    ledToggle2 = false;
+  }
+  else
   {
     digitalWrite(ledPin2, LOW);
     led2On = false;
   }
-  else
-  {
-    digitalWrite(ledPin2, HIGH);
-    led2On = true;
-  }
-  ledToggle2 = false;
 }
 
-void speaker()
+void buzzer()
 {
-  tone(speakerPin, 523, 250);
+  if (useBuzzer)
+  {
+    if (buzzerOn)
+    {
+      digitalWrite(buzzerPin, LOW);
+      buzzerOn = false;
+    }
+    else
+    {
+      digitalWrite(buzzerPin, HIGH);
+      buzzerOn = true;
+    }
+    buzzerToggle = false;
+  }
+  else
+  {
+    digitalWrite(buzzerPin, LOW);
+    buzzerOn = false;
+  }
+}
+
+void manual()
+{
+  while (Serial.available())
+  {
+    char rxChar = (char)Serial.read();
+    switch (rxChar)
+    {
+      case '1':
+        if (useLed1)
+          useLed1 = false;
+        else
+          useLed1 = true;
+        break;
+      case '2':
+        if (useLed2)
+          useLed2 = false;
+        else
+          useLed2 = true;
+        break;
+      case 'b':
+        if (useBuzzer)
+          useBuzzer = false;
+        else
+          useBuzzer = true;
+        break;
+      case 't':
+        if (forceAlert)
+          forceAlert = false;
+        else
+          forceAlert = true;
+        break;
+    }
+  }
 }
 
 void loop()
 {
-  static unsigned long loopStart = 0;                                   //Determines whether data should be printed.
-  static unsigned long ledStart1 = 0;                                   //Determines whether LED 1 state should change when altitude < 100.
-  static unsigned long ledStart2 = 0;                                   //Determines whether LED 2 state should change when altitude < 100.
-  static unsigned long loopEnd = 0;                                     //Initialized as an arbitrary high value to make everything run the first time.
-  static unsigned long ledDelayOff2 = (ledDelayOn2 + ledDelayOff2Real) / 2;  //This sets the first off delay so that the LEDs are in opposite phase.
-  //static bool firstRun = true;
-
-  if (led1On)
+  static unsigned long loopStart = 0;                                       //Determines whether data should be printed.
+  static unsigned long ledStart1 = 0;                                       //Determines whether LED 1 state should change when altitude < 100.
+  static unsigned long ledStart2 = 0;                                       //Determines whether LED 2 state should change when altitude < 100.
+  static unsigned long buzzerStart = 0;
+  static unsigned long loopEnd = 0;                                         //Initialized as an arbitrary high value to make everything run the first time.
+  static unsigned long ledDelayOff2 = (ledDelayOn2 + ledDelayOff2Real) / 2; //This sets the first off delay so that the LEDs are in opposite phase.
+  
+  if (led1On)                               //If LED 1 is on…
   {
-    if (loopEnd - ledStart1 > ledDelayOn1)
+    if (loopEnd - ledStart1 > ledDelayOn1)  //…and enough time has passed since it last toggled…
     {
-      ledToggle1 = true;
-      ledStart1 = millis();
-    }
+      ledToggle1 = true;                    //…set ledToggle1 to true, which will make LED 1 toggle the next time led1() is called.
+      ledStart1 = millis();                 //Assign a new starting point to compare the loop end time with. This lets us know how long it's been since the LED toggle.
+    }                                       //The following conditionals do the same thing, but check if LED 1 is off and if LED 2 is on or off. also buzzer
   }
   else
   {
@@ -239,27 +315,55 @@ void loop()
       ledDelayOff2 = ledDelayOff2Real;
     }
   }
+
+  if (buzzerOn)
+  {
+    if (loopEnd - buzzerStart > buzzerDelayOn)
+    {
+      buzzerToggle = true;
+      buzzerStart = millis();
+    }
+  }
+  else
+  {
+    if (loopEnd - buzzerStart > buzzerDelayOff)
+    {
+      buzzerToggle = true;
+      buzzerStart = millis();
+    }
+  }
+
   if (loopEnd - loopStart > loopTime)
+  {
     printData();
     loopStart = millis();
+  }
   
-  if (alt < 100.0)
+  manual();
+  
+  if (alt < 100.0)      //do the things if we're lower than 100 m above starting altitude
   {
     if (ledToggle1)
       led1();
     if (ledToggle2)
-      /*if (firstRun)
-      {
-        delay(ledDelayOn1);
-        firstRun = false;
-      }*/
       led2();
-    //speaker();
+    if (buzzerToggle)
+      buzzer();
   }
-  else
+  else if (forceAlert)  //or if a command has been recieved
+  {
+    if (ledToggle1)
+      led1();
+    if (ledToggle2)
+      led2();
+    if (buzzerToggle)
+      buzzer();
+  }
+  else                  //turn the things off
   {
     digitalWrite(ledPin, LOW);
     digitalWrite(ledPin2, LOW);
+    digitalWrite(buzzerPin, LOW);
   }
   
   counter++;
