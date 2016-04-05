@@ -348,6 +348,7 @@ void loop()
   if (loopEnd - loopStart > loopTime)
   {
     printData();
+    counter++;
     loopStart = millis();
   }
   
@@ -360,6 +361,5 @@ void loop()
   if (buzzerToggle)
     buzzer();
   
-  counter++;
   loopEnd = millis();
 }
