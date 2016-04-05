@@ -96,7 +96,7 @@ float pressure()        //Function to calculate pressure in Pa
 float temp()            //Function to calculate temperature in deg C
 {
   float v = bitToVolt(5);
-  float tmp = (v - tmpOff) / tmpSens;
+  float tmp = (v - tmpOff) / tmpSens + 273.5;
   return tmp;
 }
 
