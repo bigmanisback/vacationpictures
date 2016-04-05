@@ -138,10 +138,6 @@ float altitude()        //Function to calculate altitude in m
 
 void printData()
 {
-  Serial.print(bitToVolt(0));
-  Serial.print(",");
-  Serial.print(bitToVolt(5), 7);
-  Serial.print(",");
   Serial.print(counter);
   Serial.print(",");
   Serial.print(millis());
