@@ -14,6 +14,7 @@ const float d = 6.383091E-8;
 // Pressure sensor
 #define pressureSens 0.009
 #define pressureOff 0.095
+float prs;
 
 // LM35DZ Temp sensor
 #define tmpSens 0.01      //Sensitivity
@@ -93,7 +94,7 @@ float pressure()        //Function to calculate pressure in Pa
   return p;
 }
 
-float temp()            //Function to calculate temperature in deg C
+float temp()            //Function to calculate temperature in K
 {
   float v = bitToVolt(5);
   float tmp = (v - tmpOff) / tmpSens + 273.5;
@@ -131,8 +132,7 @@ float altitude()        //Function to calculate altitude in m
 {
   static float startTmp = temp();      //Measure start temperature
   static float startPrs = pressure();  //Measure start pressure
-  float p = pressure();
-  float alt = (startTmp / tmpGrad) * (pow(p / startPrs, -tmpGrad * R / g) - 1.0);
+  float alt = (startTmp / tmpGrad) * (pow(prs / startPrs, -tmpGrad * R / g) - 1.0);
   return alt;
 }
 
@@ -154,7 +154,8 @@ void printData()
   Serial.print(",");
   Serial.print(analogRead(4));
   Serial.print(",");
-  Serial.print(pressure());
+  prs = pressure();
+  Serial.print(prs);
   Serial.print(",");
   Serial.print(temp());
   Serial.print(",");
