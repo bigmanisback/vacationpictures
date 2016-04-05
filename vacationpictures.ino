@@ -2,8 +2,7 @@
 #define vs 5.0        //Supply voltage
 #define loopTime 500  //Duration of one loop
 
-/***** Sensor calibration *****
- * Temperature offset may be wrong; sensor has not been tested */
+//***** Sensor calibration *****
 
 // NTC Temp sensor
 #define r1 10000.0
@@ -12,13 +11,13 @@ const float b = 2.569850E-4;
 const float c = 2.620131E-6;
 const float d = 6.383091E-8;
 
-//Pressure sensor
+// Pressure sensor
 #define pressureSens 0.009
-#define pressureOff -0.095
+#define pressureOff 0.095
 
 // LM35DZ Temp sensor
 #define tmpSens 0.01      //Sensitivity
-#define tmpOff 0.0        //Offset
+#define tmpOff 0.0733138  //Offset
 
 // Accelerometer
 #define accSensMode true  //Accelerometer sensitivity mode. false: 1.5 g, true: 6 g
@@ -139,6 +138,10 @@ float altitude()        //Function to calculate altitude in m
 
 void printData()
 {
+  Serial.print(bitToVolt(0));
+  Serial.print(",");
+  Serial.print(bitToVolt(5), 7);
+  Serial.print(",");
   Serial.print(counter);
   Serial.print(",");
   Serial.print(millis());
