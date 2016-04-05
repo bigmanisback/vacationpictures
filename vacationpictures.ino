@@ -69,7 +69,7 @@ void setup()
   pinMode(buzzerPin, OUTPUT);
   //analogWrite(buzzerPin, 255);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
-  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / °C,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
+  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
 
 float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
