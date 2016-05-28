@@ -42,7 +42,7 @@ const float g = 9.81;     //Gravitational acceleration
 
 #define alertAltitude 100.0
 
-#define ledPin 2              //Pin of LED
+#define ledPin 3              //Pin of LED
 #define ledPin2 10            //Pin of LED 2
 #define ledDelayOn1 250       //Blink delay of LED 1 in ms
 #define ledDelayOff1 1750     //Blink delay of LED 1 in ms
@@ -53,7 +53,7 @@ bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called
 bool led1On = true;           //
 bool led2On = false;          //
 
-#define buzzerPin 3      //Pin of buzzer
+#define buzzerPin 2      //Pin of buzzer
 #define buzzerDelayOn 250
 #define buzzerDelayOff 1750
 bool buzzerToggle = false;
