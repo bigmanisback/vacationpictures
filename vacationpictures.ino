@@ -35,7 +35,7 @@ const float g = 9.81;     //Gravitational acceleration
 
 #define alertAltitude 100.0
 
-#define ledPin 9              //Pin of LED
+#define ledPin 2              //Pin of LED
 #define ledPin2 10            //Pin of LED 2
 #define ledDelayOn1 250       //Blink delay of LED 1 in ms
 #define ledDelayOff1 1750     //Blink delay of LED 1 in ms
@@ -46,7 +46,7 @@ bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called
 bool led1On = true;           //
 bool led2On = false;          //
 
-#define buzzerPin 6      //Pin of buzzer
+#define buzzerPin 3      //Pin of buzzer
 #define buzzerDelayOn 250
 #define buzzerDelayOff 1750
 bool buzzerToggle = false;
@@ -71,8 +71,8 @@ void setup()
   pinMode(ledPin2, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
   //analogWrite(buzzerPin, 255);
-  pinMode(switchPinHelp, INPUT);
-  pinMode(switchPinOk, INPUT);
+  pinMode(switchPinHelp, INPUT_PULLUP);
+  pinMode(switchPinOk, INPUT_PULLUP);
   Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
 }
@@ -143,11 +143,11 @@ float altitude()        //Function to calculate altitude in m
 
 int switchRead()
 {
-  if (digitalRead(switchPinHelp) == HIGH)
+  if (digitalRead(switchPinHelp) == LOW)
   {
     return 0;
   }
-  else if (digitalRead(switchPinOk) == HIGH)
+  else if (digitalRead(switchPinOk) == LOW)
   {
     return 1;
   }
