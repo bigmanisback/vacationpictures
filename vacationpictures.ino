@@ -1,3 +1,10 @@
+#include "SoftwareSerial.h"
+#include "TinyGPS++.h"
+
+SoftwareSerial ss(5, 6);
+TinyGPSPlus gps;
+TinyGPSCustom steerDirection(gps, "GPRMC", 2);
+
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
 #define loopTime 500  //Duration of one loop
@@ -191,7 +198,15 @@ void printData()
   Serial.print(accCalc(4));
   Serial.print(",");
   alt = altitude();
-  Serial.println(alt);
+  Serial.print(alt);
+  Serial.print(",");
+  while (ss.available() > 0)
+    gps.encode(ss.read());
+  Serial.print(gps.location.rawLat().billionths);
+  Serial.print(",");
+  Serial.print(gps.location.rawLng().billionths);
+  Serial.print(",");
+  Serial.println(gps.altitude.value());
 }
 
 void led1()
