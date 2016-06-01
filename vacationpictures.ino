@@ -1,9 +1,11 @@
 #include "SoftwareSerial.h"
 #include "TinyGPS++.h"
 
-SoftwareSerial ss(5, 6);
+#define gpsRx 6
+#define gpsTx 5
+SoftwareSerial ss(gpsTx, gpsRx);
 TinyGPSPlus gps;
-TinyGPSCustom steerDirection(gps, "GPRMC", 2);
+TinyGPSCustom gpsValid(gps, "GPRMC", 2);
 
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
@@ -43,24 +45,24 @@ const float g = 9.81;     //Gravitational acceleration
 #define alertAltitude 100.0
 
 #define ledPin 3              //Pin of LED
-#define ledPin2 10            //Pin of LED 2
-#define ledDelayOn1 250       //Blink delay of LED 1 in ms
-#define ledDelayOff1 1750     //Blink delay of LED 1 in ms
-#define ledDelayOn2 250       //Blink delay of LED 2 in ms
-#define ledDelayOff2Real 1750 //Blink delay of LED 2 in ms
-bool ledToggle1 = false;      //If true, LED 1 will toggle when led1() is called.
-bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called.
-bool led1On = true;           //
-bool led2On = false;          //
+//#define ledPin2 10            //Pin of LED 2
+#define ledDelayOn 250        //Blink delay of LED 1 in ms
+#define ledDelayOff 1750      //Blink delay of LED 1 in ms
+//#define ledDelayOn2 250       //Blink delay of LED 2 in ms
+//#define ledDelayOff2Real 1750 //Blink delay of LED 2 in ms
+bool ledToggle = false;       //If true, LED 1 will toggle when led() is called.
+//bool ledToggle2 = false;      //If true, LED 2 will toggle when led2() is called.
+bool ledOn = true;           //
+//bool led2On = false;          //
 
-#define buzzerPin 2      //Pin of buzzer
+#define buzzerPin 2           //Pin of buzzer
 #define buzzerDelayOn 250
 #define buzzerDelayOff 1750
 bool buzzerToggle = false;
 bool buzzerOn = true;
 
-bool useLed1 = true;
-bool useLed2 = true;
+bool useled = true;
+//bool useLed2 = true;
 bool useBuzzer = true;
 bool forceAlert = false;
 bool forceSilence = false;
@@ -68,14 +70,14 @@ bool forceSilence = false;
 #define switchPinHelp 7
 #define switchPinOk 8
 
-unsigned long counter = 0;//Used to check how many times the program has run
+unsigned long counter = 0;    //Used to check how many times the program has run
 float alt = 0.0;
 
 void setup()
 {
   Serial.begin(bitrate);
   pinMode(ledPin, OUTPUT);
-  pinMode(ledPin2, OUTPUT);
+  //pinMode(ledPin2, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
   //analogWrite(buzzerPin, 255);
   pinMode(switchPinHelp, INPUT_PULLUP);
@@ -202,25 +204,27 @@ void printData()
   Serial.print(",");
   while (ss.available() > 0)
     gps.encode(ss.read());
+  Serial.print(gps.location.rawLat().negative ? "-" : "+");
   Serial.print(gps.location.rawLat().billionths);
   Serial.print(",");
+  Serial.print(gps.location.rawLng().negative ? "-" : "+");
   Serial.print(gps.location.rawLng().billionths);
   Serial.print(",");
   Serial.println(gps.altitude.value());
 }
 
-void led1()
+void led()
 {
-  if (led1On)
+  if (ledOn)
   {
     digitalWrite(ledPin, LOW);
-    led1On = false;
+    ledOn = false;
   }
   else
   {
     if (!forceSilence)
     {
-      if (useLed1)
+      if (useled)
       {
         if (alt < alertAltitude)
           digitalWrite(ledPin, HIGH);
@@ -228,11 +232,12 @@ void led1()
           digitalWrite(ledPin, HIGH);
       }
     }
-    led1On = true;
+    ledOn = true;
   }
-  ledToggle1 = false;
+  ledToggle = false;
 }
 
+/*
 void led2()
 {
   if (led2On)
@@ -256,6 +261,7 @@ void led2()
   }
   ledToggle2 = false;
 }
+*/
 
 void buzzer()
 {
@@ -266,15 +272,12 @@ void buzzer()
   }
   else
   {
-    if (!forceSilence)
+    if (!forceSilence && useBuzzer)
     {
-      if (useBuzzer)
-      {
-        if (alt < alertAltitude)
-          digitalWrite(buzzerPin, HIGH);
-        else if (forceAlert)
-          digitalWrite(buzzerPin, HIGH);
-      }
+      if (alt < alertAltitude)
+        digitalWrite(buzzerPin, HIGH);
+      else if (forceAlert)
+        digitalWrite(buzzerPin, HIGH);
     }
     buzzerOn = true;
   }
@@ -289,10 +292,10 @@ void manual()
     switch (rxChar)
     {
       case '1':
-        if (useLed1)
-          useLed1 = false;
+        if (useled)
+          useled = false;
         else
-          useLed1 = true;
+          useled = true;
         break;
       case '2':
         if (useLed2)
@@ -325,29 +328,29 @@ void manual()
 void loop()
 {
   static unsigned long loopStart = 0;                                       //Determines whether data should be printed.
-  static unsigned long ledStart1 = 0;                                       //Determines whether LED 1 state should change when altitude < 100.
-  static unsigned long ledStart2 = 0;                                       //Determines whether LED 2 state should change when altitude < 100.
+  static unsigned long ledStart = 0;                                       //Determines whether LED 1 state should change when altitude < 100.
+  //static unsigned long ledStart2 = 0;                                       //Determines whether LED 2 state should change when altitude < 100.
   static unsigned long buzzerStart = 0;
   static unsigned long loopEnd = 0;                                         //Initialized as an arbitrary high value to make everything run the first time.
-  static unsigned long ledDelayOff2 = (ledDelayOn2 + ledDelayOff2Real) / 2; //This sets the first off delay so that the LEDs are in opposite phase.
-  
-  if (led1On)                               //If LED 1 is on…
+  //static unsigned long ledDelayOff2 = (ledDelayOn2 + ledDelayOff2Real) / 2; //This sets the first off delay so that the LEDs are in opposite phase.
+
+  if (ledOn)                                //If LED is on…
   {
-    if (loopEnd - ledStart1 > ledDelayOn1)  //…and enough time has passed since it last toggled…
+    if (loopEnd - ledStart > ledDelayOn)  //…and enough time has passed since it last toggled…
     {
-      ledToggle1 = true;                    //…set ledToggle1 to true, which will make LED 1 toggle the next time led1() is called.
-      ledStart1 = millis();                 //Assign a new starting point to compare the loop end time with. This lets us know how long it's been since the LED toggle.
+      ledToggle = true;                     //…set ledToggle to true, which will make LED 1 toggle the next time led() is called.
+      ledStart = millis();                 //Assign a new starting point to compare the loop end time with. This lets us know how long it's been since the LED toggle.
     }                                       //The following conditionals do the same thing, but check if LED 1 is off and if LED 2 is on or off. also buzzer
   }
   else
   {
-    if (loopEnd - ledStart1 > ledDelayOff1)
+    if (loopEnd - ledStart > ledDelayOff)
     {
-      ledToggle1 = true;
-      ledStart1 = millis();
+      ledToggle = true;
+      ledStart = millis();
     }
   }
-  
+  /*
   if (led2On)
   {
     if (loopEnd - ledStart2 > ledDelayOn2)
@@ -365,7 +368,7 @@ void loop()
       ledDelayOff2 = ledDelayOff2Real;
     }
   }
-
+  */
   if (buzzerOn)
   {
     if (loopEnd - buzzerStart > buzzerDelayOn)
@@ -389,15 +392,15 @@ void loop()
     counter++;
     loopStart = millis();
   }
-  
+
   manual();
 
-  if (ledToggle1)
-    led1();
-  if (ledToggle2)
-    led2();
+  if (ledToggle)
+    led();
+  //if (ledToggle2)
+    //led2();
   if (buzzerToggle)
     buzzer();
-  
+
   loopEnd = millis();
 }
