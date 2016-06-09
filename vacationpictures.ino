@@ -61,7 +61,7 @@ bool ledOn = true;           //
 bool buzzerToggle = false;
 bool buzzerOn = true;
 
-bool useled = true;
+bool useLed = true;
 //bool useLed2 = true;
 bool useBuzzer = true;
 bool forceAlert = false;
@@ -82,8 +82,8 @@ void setup()
   //analogWrite(buzzerPin, 255);
   pinMode(switchPinHelp, INPUT_PULLUP);
   pinMode(switchPinOk, INPUT_PULLUP);
-  Serial.print("Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                 //Heading row
-  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m");  //for the output
+  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                         //Heading row
+  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m,Latitude,Longitude,Altitude (GPS),Speed,Course");  //for the output
 }
 
 float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
@@ -222,15 +222,12 @@ void led()
   }
   else
   {
-    if (!forceSilence)
+    if (!forceSilence && useLed)
     {
-      if (useled)
-      {
-        if (alt < alertAltitude)
-          digitalWrite(ledPin, HIGH);
-        else if (forceAlert)
-          digitalWrite(ledPin, HIGH);
-      }
+      if (alt < alertAltitude)
+        digitalWrite(ledPin, HIGH);
+      else if (forceAlert)
+        digitalWrite(ledPin, HIGH);
     }
     ledOn = true;
   }
@@ -292,17 +289,19 @@ void manual()
     switch (rxChar)
     {
       case '1':
-        if (useled)
-          useled = false;
+        if (useLed)
+          useLed = false;
         else
-          useled = true;
+          useLed = true;
         break;
+      /*
       case '2':
         if (useLed2)
           useLed2 = false;
         else
           useLed2 = true;
         break;
+      */
       case 'b':
         if (useBuzzer)
           useBuzzer = false;
