@@ -73,6 +73,7 @@ bool forceSilence = false;
 unsigned long counter = 0;    //Used to check how many times the program has run
 bool calculate = true;        //Onboard calculations on/off
 float alt = 0.0;
+#define delimiter ','
 
 void setup()
 {
@@ -172,53 +173,57 @@ int switchRead()
 void printData()
 {
   Serial.print(switchRead());
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(counter);
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(millis());
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(1));
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(5));
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(0));
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(2));
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(3));
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(analogRead(4));
-  Serial.print(",");
+  Serial.print(delimiter);
   if (calculate);
   {
     prs = pressure();
     Serial.print(prs);
-    Serial.print(",");
+    Serial.print(delimiter);
     Serial.print(temp());
-    Serial.print(",");
+    Serial.print(delimiter);
     Serial.print(ntc());
-    Serial.print(",");
+    Serial.print(delimiter);
     Serial.print(accCalc(2));
-    Serial.print(",");
+    Serial.print(delimiter);
     Serial.print(accCalc(3));
-    Serial.print(",");
+    Serial.print(delimiter);
     Serial.print(accCalc(4));
-    Serial.print(",");
+    Serial.print(delimiter);
     alt = altitude();
     Serial.print(alt);
-    Serial.print(",");
+    Serial.print(delimiter);
   }
   while (ss.available() > 0)
     gps.encode(ss.read());
   Serial.print(gps.location.isValid());
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(gps.location.rawLat().negative ? "-" : "+");
   Serial.print(gps.location.rawLat().billionths);
-  Serial.print(",");
+  Serial.print(delimiter);
   Serial.print(gps.location.rawLng().negative ? "-" : "+");
   Serial.print(gps.location.rawLng().billionths);
-  Serial.print(",");
-  Serial.println(gps.altitude.value());
+  Serial.print(delimiter);
+  Serial.print(gps.altitude.value());
+  Serial.print(delimiter);
+  Serial.print(gps.speed.value());
+  Serial.print(delimiter);
+  Serial.println(gps.course.value());
 }
 
 void led()
