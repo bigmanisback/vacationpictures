@@ -5,7 +5,7 @@
 #define gpsTx 5
 SoftwareSerial ss(gpsTx, gpsRx);
 TinyGPSPlus gps;
-TinyGPSCustom gpsValid(gps, "GPRMC", 2);
+//TinyGPSCustom gpsValid(gps, "GPRMC", 2);
 
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
@@ -71,6 +71,7 @@ bool forceSilence = false;
 #define switchPinOk 8
 
 unsigned long counter = 0;    //Used to check how many times the program has run
+bool calculate = true;        //Onboard calculations on/off
 float alt = 0.0;
 
 void setup()
@@ -82,8 +83,10 @@ void setup()
   //analogWrite(buzzerPin, 255);
   pinMode(switchPinHelp, INPUT_PULLUP);
   pinMode(switchPinOk, INPUT_PULLUP);
-  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                         //Heading row
-  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m,Latitude,Longitude,Altitude (GPS),Speed,Course");  //for the output
+  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                                      //Heading row
+  Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
+  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");
+  Serial.println("Acceleration Z-axis,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");
 }
 
 float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
@@ -186,24 +189,29 @@ void printData()
   Serial.print(",");
   Serial.print(analogRead(4));
   Serial.print(",");
-  prs = pressure();
-  Serial.print(prs);
-  Serial.print(",");
-  Serial.print(temp());
-  Serial.print(",");
-  Serial.print(ntc());
-  Serial.print(",");
-  Serial.print(accCalc(2));
-  Serial.print(",");
-  Serial.print(accCalc(3));
-  Serial.print(",");
-  Serial.print(accCalc(4));
-  Serial.print(",");
-  alt = altitude();
-  Serial.print(alt);
-  Serial.print(",");
+  if (calculate);
+  {
+    prs = pressure();
+    Serial.print(prs);
+    Serial.print(",");
+    Serial.print(temp());
+    Serial.print(",");
+    Serial.print(ntc());
+    Serial.print(",");
+    Serial.print(accCalc(2));
+    Serial.print(",");
+    Serial.print(accCalc(3));
+    Serial.print(",");
+    Serial.print(accCalc(4));
+    Serial.print(",");
+    alt = altitude();
+    Serial.print(alt);
+    Serial.print(",");
+  }
   while (ss.available() > 0)
     gps.encode(ss.read());
+  Serial.print(gps.location.isValid());
+  Serial.print(",");
   Serial.print(gps.location.rawLat().negative ? "-" : "+");
   Serial.print(gps.location.rawLat().billionths);
   Serial.print(",");
@@ -224,9 +232,7 @@ void led()
   {
     if (!forceSilence && useLed)
     {
-      if (alt < alertAltitude)
-        digitalWrite(ledPin, HIGH);
-      else if (forceAlert)
+      if (alt < alertAltitude || forceAlert)
         digitalWrite(ledPin, HIGH);
     }
     ledOn = true;
@@ -271,9 +277,7 @@ void buzzer()
   {
     if (!forceSilence && useBuzzer)
     {
-      if (alt < alertAltitude)
-        digitalWrite(buzzerPin, HIGH);
-      else if (forceAlert)
+      if (alt < alertAltitude || forceAlert)
         digitalWrite(buzzerPin, HIGH);
     }
     buzzerOn = true;
@@ -320,6 +324,11 @@ void manual()
         else
           forceSilence = true;
         break;
+      case 'c':
+        if (calculate)
+          calculate = false;
+        else
+          calculate = true;
     }
   }
 }
