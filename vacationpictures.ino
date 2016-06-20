@@ -3,6 +3,7 @@
 
 #define gpsRx 6
 #define gpsTx 5
+#define gpsBitrate 9600
 SoftwareSerial ss(gpsTx, gpsRx);
 TinyGPSPlus gps;
 //TinyGPSCustom gpsValid(gps, "GPRMC", 2);
@@ -78,15 +79,16 @@ float alt = 0.0;
 void setup()
 {
   Serial.begin(bitrate);
+  ss.begin(gpsBitrate);
   pinMode(ledPin, OUTPUT);
   //pinMode(ledPin2, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
   //analogWrite(buzzerPin, 255);
   pinMode(switchPinHelp, INPUT_PULLUP);
   pinMode(switchPinOk, INPUT_PULLUP);
-  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                                      //Heading row
+  Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                                      //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
-  Serial.print("Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");
+  Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");
   Serial.println("Acceleration Z-axis,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");
 }
 
@@ -158,11 +160,11 @@ int switchRead()
 {
   if (digitalRead(switchPinHelp) == LOW)
   {
-    return 0;
+    return 1;
   }
   else if (digitalRead(switchPinOk) == LOW)
   {
-    return 1;
+    return 0;
   }
   else
   {
@@ -170,9 +172,22 @@ int switchRead()
   }
 }
 
+double accX = accCalc(2);
+double accY = accCalc(3);
+double accZ = accCalc(4);
+
+double accCalcMagnitude()
+{
+  return sqrt(pow(accX, 2) + pow(accY, 2) + pow(accZ, 2));
+}
+
+int switchState = switchRead();
+
 void printData()
 {
-  Serial.print(switchRead());
+  Serial.print("MESS");
+  Serial.print(delimiter);
+  Serial.print(switchState);
   Serial.print(delimiter);
   Serial.print(counter);
   Serial.print(delimiter);
@@ -199,12 +214,19 @@ void printData()
     Serial.print(delimiter);
     Serial.print(ntc());
     Serial.print(delimiter);
-    Serial.print(accCalc(2));
+    /*
+    accX = accCalc(2);
+    accY = accCalc(3);
+    accZ = accCalc(4);
+    Serial.print(accX);
     Serial.print(delimiter);
-    Serial.print(accCalc(3));
+    Serial.print(accY);
     Serial.print(delimiter);
-    Serial.print(accCalc(4));
+    Serial.print(accZ);
     Serial.print(delimiter);
+    Serial.print(accCalcMagnitude());
+    Serial.print(delimiter);
+    */
     alt = altitude();
     Serial.print(alt);
     Serial.print(delimiter);
@@ -213,11 +235,11 @@ void printData()
     gps.encode(ss.read());
   Serial.print(gps.location.isValid());
   Serial.print(delimiter);
-  Serial.print(gps.location.rawLat().negative ? "-" : "+");
-  Serial.print(gps.location.rawLat().billionths);
+  Serial.print(gps.location.rawLat().negative ? '-' : '+');
+  Serial.print(gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths);
   Serial.print(delimiter);
-  Serial.print(gps.location.rawLng().negative ? "-" : "+");
-  Serial.print(gps.location.rawLng().billionths);
+  Serial.print(gps.location.rawLng().negative ? '-' : '+');
+  Serial.print(gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths);
   Serial.print(delimiter);
   Serial.print(gps.altitude.value());
   Serial.print(delimiter);
@@ -399,6 +421,10 @@ void loop()
     }
   }
 
+  switchState = switchRead();
+  if (switchState != 2)
+    forceSilence = true;
+  
   if (loopEnd - loopStart > loopTime)
   {
     printData();
