@@ -183,6 +183,9 @@ double accCalcMagnitude()
 
 int switchState = switchRead();
 
+unsigned long latitude = gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths;
+unsigned long longitude = gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths;
+
 void printData()
 {
   Serial.print("MESS");
@@ -232,14 +235,19 @@ void printData()
     Serial.print(delimiter);
   }
   while (ss.available() > 0)
+  {
+    Serial.write(ss.read()); 
     gps.encode(ss.read());
+  }
   Serial.print(gps.location.isValid());
   Serial.print(delimiter);
+  latitude = gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths;
+  longitude = gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths;
   Serial.print(gps.location.rawLat().negative ? '-' : '+');
-  Serial.print(gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths);
+  Serial.print(latitude);
   Serial.print(delimiter);
   Serial.print(gps.location.rawLng().negative ? '-' : '+');
-  Serial.print(gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths);
+  Serial.print(longitude);
   Serial.print(delimiter);
   Serial.print(gps.altitude.value());
   Serial.print(delimiter);
