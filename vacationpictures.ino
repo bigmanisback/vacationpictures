@@ -92,8 +92,8 @@ void setup()
   Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");
   Serial.println("Acceleration Z-axis,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");
   */
-  Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),");                                                                                                      //Heading row
-  Serial.println("Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
+  //Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),");                                                                                                      //Heading row
+  //Serial.println("Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
 }
 
 float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
@@ -121,7 +121,7 @@ float pressure()        //Function to calculate pressure in Pa
 float temp()            //Function to calculate temperature in K
 {
   float v = bitToVolt(5);
-  float tmp = 1.004783 * ((v - tmpOff) / tmpSens + 273.5);
+  float tmp = (v - tmpOff) / tmpSens + 273.5 + 6;
   return tmp;
 }
 
@@ -219,9 +219,9 @@ void printData()
     prs = pressure();
     Serial.print(prs);
     Serial.print(delimiter);
-    Serial.print(temp());
+    Serial.print(temp(), 4);
     Serial.print(delimiter);
-    Serial.print(ntc());
+    Serial.print(ntc(), 4);
     Serial.print(delimiter);
     /*
     accX = accCalc(2);
@@ -237,7 +237,7 @@ void printData()
     Serial.print(delimiter);
     */
     alt = altitude();
-    Serial.print(alt);
+    Serial.print(alt, 6);
     Serial.print(delimiter);
   }
   while (ss.available() > 0)
@@ -260,11 +260,13 @@ void printData()
   Serial.print(gps.location.rawLng().billionths);
   //Serial.print(longitude * 1000000000 + gps.location.rawLng().billionths);
   Serial.print(delimiter);
-  Serial.print(gps.altitude.value());
+  Serial.println(gps.altitude.value());
+  /*
   Serial.print(delimiter);
   Serial.print(gps.speed.value());
   Serial.print(delimiter);
   Serial.println(gps.course.value());
+  */
 }
 
 void led()
