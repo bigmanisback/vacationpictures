@@ -10,7 +10,7 @@ TinyGPSPlus gps;
 
 #define bitrate 9600  //Bitrate for the serial interface
 #define vs 5.0        //Supply voltage
-#define loopTime 500  //Duration of one loop
+#define loopTime 1000 //Duration of one loop
 
 //***** Sensor calibration *****
 
@@ -86,10 +86,14 @@ void setup()
   //analogWrite(buzzerPin, 255);
   pinMode(switchPinHelp, INPUT_PULLUP);
   pinMode(switchPinOk, INPUT_PULLUP);
+  /*
   Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");                                                                                                      //Heading row
   Serial.println("Acceleration Z-axis,Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Acceleration X-axis / g,Acceleration Y-axis / g,Acceleration Z-axis / g,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
   Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),Acceleration X-axis,Acceleration Y-axis,");
   Serial.println("Acceleration Z-axis,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");
+  */
+  Serial.print("MESS,Status,Counter,Time / ms,Pressure,Temperature (LM35),Temperature (NTC),");                                                                                                      //Heading row
+  Serial.println("Pressure / kPa,Temperature (LM35) / K,Temperature (NTC) / K,Altitude / m,GPS Valid,Latitude,Longitude,Altitude (GPS),Speed,Course");//for the output
 }
 
 float bitToVolt(int n)  //Function to convert raw ADC-data (0-1023) to volt (from shield test)
@@ -103,21 +107,21 @@ float ntc()             //Function to calculate temperature in K
 {
   float v = bitToVolt(0);
   float r = vs * r1 / v - r1;
-  float t = 1.0 / (a + b * log(r / r1) + c * pow(log(r / r1), 2.0) + d * pow(log(r / r1), 3.0));
+  float t = 0.97806063 * (1.0 / (a + b * log(r / r1) + c * pow(log(r / r1), 2.0) + d * pow(log(r / r1), 3.0)));
   return t;
 }
 
 float pressure()        //Function to calculate pressure in Pa
 {
   float v = bitToVolt(1);
-  float p = ((v / vs + pressureOff) / pressureSens) * 1000.0;
+  float p = 1.004833 * (((v / vs + pressureOff) / pressureSens) * 1000.0);
   return p;
 }
 
 float temp()            //Function to calculate temperature in K
 {
   float v = bitToVolt(5);
-  float tmp = (v - tmpOff) / tmpSens + 273.5;
+  float tmp = 1.004783 * ((v - tmpOff) / tmpSens + 273.5);
   return tmp;
 }
 
@@ -183,8 +187,8 @@ double accCalcMagnitude()
 
 int switchState = switchRead();
 
-unsigned long latitude = gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths;
-unsigned long longitude = gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths;
+//unsigned long latitude = gps.location.rawLat().deg;// * 1000000000 + gps.location.rawLat().billionths;
+//unsigned long longitude = gps.location.rawLng().deg;// * 1000000000 + gps.location.rawLng().billionths;
 
 void printData()
 {
@@ -202,12 +206,14 @@ void printData()
   Serial.print(delimiter);
   Serial.print(analogRead(0));
   Serial.print(delimiter);
+  /*
   Serial.print(analogRead(2));
   Serial.print(delimiter);
   Serial.print(analogRead(3));
   Serial.print(delimiter);
   Serial.print(analogRead(4));
   Serial.print(delimiter);
+  */
   if (calculate);
   {
     prs = pressure();
@@ -236,18 +242,23 @@ void printData()
   }
   while (ss.available() > 0)
   {
-    Serial.write(ss.read()); 
     gps.encode(ss.read());
   }
   Serial.print(gps.location.isValid());
   Serial.print(delimiter);
-  latitude = gps.location.rawLat().deg * 1000000000 + gps.location.rawLat().billionths;
-  longitude = gps.location.rawLng().deg * 1000000000 + gps.location.rawLng().billionths;
+  //latitude = gps.location.rawLat().deg;// * 1000000000// + gps.location.rawLat().billionths;
+  //longitude = gps.location.rawLng().deg;// * 1000000000// + gps.location.rawLng().billionths;
   Serial.print(gps.location.rawLat().negative ? '-' : '+');
-  Serial.print(latitude);
+  Serial.print(gps.location.rawLat().deg);
+  Serial.print('.');
+  Serial.print(gps.location.rawLat().billionths);
+  //Serial.print(latitude * 1000000000 + gps.location.rawLat().billionths);
   Serial.print(delimiter);
   Serial.print(gps.location.rawLng().negative ? '-' : '+');
-  Serial.print(longitude);
+  Serial.print(gps.location.rawLng().deg);
+  Serial.print('.');
+  Serial.print(gps.location.rawLng().billionths);
+  //Serial.print(longitude * 1000000000 + gps.location.rawLng().billionths);
   Serial.print(delimiter);
   Serial.print(gps.altitude.value());
   Serial.print(delimiter);
@@ -432,13 +443,6 @@ void loop()
   switchState = switchRead();
   if (switchState != 2)
     forceSilence = true;
-  
-  if (loopEnd - loopStart > loopTime)
-  {
-    printData();
-    counter++;
-    loopStart = millis();
-  }
 
   manual();
 
@@ -448,6 +452,13 @@ void loop()
     //led2();
   if (buzzerToggle)
     buzzer();
+  
+  if (loopEnd - loopStart > loopTime)
+  {
+    printData();
+    counter++;
+    loopStart = millis();
+  }
 
   loopEnd = millis();
 }
